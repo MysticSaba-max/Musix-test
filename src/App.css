@@ -1,0 +1,15 @@
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--spotify-black);
+}
+
+.app-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 0;
+}
