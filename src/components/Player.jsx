@@ -11,9 +11,10 @@ import {
   Maximize2,
   Heart
 } from 'lucide-react'
+import { toggleLikedSong, isTrackLiked, addToRecentlyPlayed } from '../utils/localStorage'
 import './Player.css'
 
-const Player = ({ currentTrack }) => {
+const Player = ({ currentTrack, onLikedChange }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(245) // 4:05 in seconds
@@ -22,6 +23,13 @@ const Player = ({ currentTrack }) => {
   const [isLiked, setIsLiked] = useState(false)
   const [isShuffled, setIsShuffled] = useState(false)
   const [repeatMode, setRepeatMode] = useState(0) // 0: off, 1: all, 2: one
+
+  // Check if current track is liked when track changes
+  useEffect(() => {
+    if (currentTrack && currentTrack.id) {
+      setIsLiked(isTrackLiked(currentTrack.id))
+    }
+  }, [currentTrack])
 
   useEffect(() => {
     let interval
@@ -46,7 +54,13 @@ const Player = ({ currentTrack }) => {
   }
 
   const handlePlayPause = () => {
-    setIsPlaying(!isPlaying)
+    const newPlayingState = !isPlaying
+    setIsPlaying(newPlayingState)
+
+    // Add to recently played when starting playback
+    if (newPlayingState && currentTrack && currentTrack.id) {
+      addToRecentlyPlayed(currentTrack)
+    }
   }
 
   const handleSeek = (e) => {
@@ -69,7 +83,15 @@ const Player = ({ currentTrack }) => {
   }
 
   const toggleLike = () => {
-    setIsLiked(!isLiked)
+    if (currentTrack && currentTrack.id) {
+      const newLikedState = toggleLikedSong(currentTrack)
+      setIsLiked(newLikedState)
+
+      // Notify parent component about the change
+      if (onLikedChange) {
+        onLikedChange()
+      }
+    }
   }
 
   const toggleShuffle = () => {
@@ -159,6 +181,12 @@ const Player = ({ currentTrack }) => {
           )}
         </button>
         <div className="volume-slider-container">
+          <div className="volume-bar">
+            <div
+              className="volume-fill"
+              style={{ width: `${isMuted ? 0 : volume}%` }}
+            />
+          </div>
           <input
             type="range"
             min="0"
