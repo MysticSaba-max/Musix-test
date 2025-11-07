@@ -1,20 +1,56 @@
-import React from 'react'
-import { Home, Search, Library, Plus, Heart } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Home, Search, Library, Plus, Heart, X } from 'lucide-react'
+import { getPlaylists, createPlaylist, deletePlaylist, getLikedSongs, initializeDefaultData } from '../utils/localStorage'
+import CreatePlaylistModal from './CreatePlaylistModal'
 import './Sidebar.css'
 
-const Sidebar = () => {
-  const playlists = [
-    'Ma playlist #1',
-    'Découvertes de la semaine',
-    'Release Radar',
-    'Liked Songs',
-    'Chill Vibes',
-    'Workout Mix',
-    'Jazz Classics',
-    'Rock Legends',
-    'Hip Hop Hits',
-    'Electronic Dreams',
-  ]
+const Sidebar = ({ onNavigate, onPlaylistSelect, onLikedSongsClick }) => {
+  const [playlists, setPlaylists] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [hoveredPlaylist, setHoveredPlaylist] = useState(null)
+  const [activeView, setActiveView] = useState('home')
+
+  useEffect(() => {
+    // Initialize default data on first load
+    initializeDefaultData()
+    loadPlaylists()
+  }, [])
+
+  const loadPlaylists = () => {
+    const storedPlaylists = getPlaylists()
+    setPlaylists(storedPlaylists)
+  }
+
+  const handleCreatePlaylist = (name, description) => {
+    createPlaylist(name, description)
+    loadPlaylists()
+  }
+
+  const handleDeletePlaylist = (e, playlistId) => {
+    e.stopPropagation()
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette playlist ?')) {
+      deletePlaylist(playlistId)
+      loadPlaylists()
+    }
+  }
+
+  const handleNavClick = (view) => {
+    setActiveView(view)
+    if (onNavigate) onNavigate(view)
+  }
+
+  const handlePlaylistClick = (playlist) => {
+    setActiveView('playlist')
+    if (onPlaylistSelect) onPlaylistSelect(playlist)
+  }
+
+  const handleLikedSongsClick = () => {
+    setActiveView('liked')
+    if (onLikedSongsClick) onLikedSongsClick()
+  }
+
+  const likedSongs = getLikedSongs()
+  const likedSongsCount = likedSongs.length
 
   return (
     <div className="sidebar">
@@ -27,39 +63,81 @@ const Sidebar = () => {
         </div>
 
         <nav className="sidebar-nav">
-          <button className="nav-item active">
+          <button
+            className={`nav-item ${activeView === 'home' ? 'active' : ''}`}
+            onClick={() => handleNavClick('home')}
+          >
             <Home size={24} />
             <span>Accueil</span>
           </button>
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === 'search' ? 'active' : ''}`}
+            onClick={() => handleNavClick('search')}
+          >
             <Search size={24} />
             <span>Rechercher</span>
           </button>
-          <button className="nav-item">
+          <button
+            className={`nav-item ${activeView === 'library' ? 'active' : ''}`}
+            onClick={() => handleNavClick('library')}
+          >
             <Library size={24} />
             <span>Ma bibliothèque</span>
           </button>
         </nav>
 
         <div className="sidebar-actions">
-          <button className="nav-item">
+          <button className="nav-item" onClick={() => setIsModalOpen(true)}>
             <Plus size={24} />
             <span>Créer une playlist</span>
           </button>
-          <button className="nav-item liked-songs">
+          <button
+            className={`nav-item liked-songs ${activeView === 'liked' ? 'active' : ''}`}
+            onClick={handleLikedSongsClick}
+          >
             <Heart size={24} fill="currentColor" />
-            <span>Titres likés</span>
+            <div className="liked-songs-text">
+              <span>Titres likés</span>
+              {likedSongsCount > 0 && (
+                <span className="liked-songs-count">{likedSongsCount} titres</span>
+              )}
+            </div>
           </button>
         </div>
       </div>
 
       <div className="sidebar-playlists">
-        {playlists.map((playlist, index) => (
-          <button key={index} className="playlist-item">
-            {playlist}
-          </button>
+        {playlists.map((playlist) => (
+          <div
+            key={playlist.id}
+            className="playlist-item-wrapper"
+            onMouseEnter={() => setHoveredPlaylist(playlist.id)}
+            onMouseLeave={() => setHoveredPlaylist(null)}
+          >
+            <button
+              className={`playlist-item ${activeView === 'playlist' ? 'active' : ''}`}
+              onClick={() => handlePlaylistClick(playlist)}
+            >
+              <span className="playlist-name">{playlist.name}</span>
+              {hoveredPlaylist === playlist.id && (
+                <button
+                  className="delete-playlist-btn"
+                  onClick={(e) => handleDeletePlaylist(e, playlist.id)}
+                  title="Supprimer la playlist"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </button>
+          </div>
         ))}
       </div>
+
+      <CreatePlaylistModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreatePlaylist}
+      />
     </div>
   )
 }

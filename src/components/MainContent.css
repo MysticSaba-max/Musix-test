@@ -367,8 +367,118 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 16px;
   color: var(--spotify-text-gray);
   font-size: 14px;
+}
+
+.track-like-btn {
+  color: var(--spotify-text-gray);
+  transition: color 0.2s, opacity 0.2s;
+  padding: 4px;
+  opacity: 0;
+}
+
+.track-row:hover .track-like-btn {
+  opacity: 1;
+}
+
+.track-like-btn.liked {
+  opacity: 1;
+  color: var(--spotify-green);
+}
+
+.track-like-btn:hover {
+  color: var(--spotify-white);
+}
+
+.track-like-btn.liked:hover {
+  color: var(--spotify-green);
+  opacity: 0.8;
+}
+
+.playlist-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  padding: 24px 0;
+  margin-bottom: 24px;
+}
+
+.playlist-cover {
+  width: 232px;
+  height: 232px;
+  background: linear-gradient(135deg, #450af5, #c4efd9);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 60px rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+
+.playlist-cover.liked-cover {
+  background: linear-gradient(135deg, #4508f7, #a0f);
+  color: var(--spotify-white);
+}
+
+.playlist-cover.default-cover {
+  background: var(--spotify-light-gray);
+  color: var(--spotify-text-gray);
+}
+
+.playlist-icon {
+  font-size: 72px;
+}
+
+.playlist-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.playlist-type {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.playlist-name {
+  font-size: 48px;
+  font-weight: 900;
+  margin-bottom: 16px;
+  line-height: 1.1;
+}
+
+.playlist-description {
+  font-size: 14px;
+  color: var(--spotify-text-gray);
+  margin-bottom: 8px;
+}
+
+.playlist-info {
+  font-size: 14px;
+  color: var(--spotify-text-gray);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.empty-state h2 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: var(--spotify-text-gray);
 }
 
 /* Responsive */
